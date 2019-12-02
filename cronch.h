@@ -4,7 +4,7 @@
 #include <string>
 #include <cstring>
 
-fstream cronchFile;
+std::fstream cronchFile;
 
 int compress ();
 int decompress ();
