@@ -1,0 +1,54 @@
+table of primes:
+1	1
+2	2
+3	3
+4	5
+5	7
+6	11
+7	13
+
+size of original: 32 bytes
+"dog\n"
+
+convert to bytes
+01100100 01101111 01100111 00001010
+
+collate all 4 bytes:
+01100100011011110110011100001010
+
+convert to a decimal number:
+1685022474
+
+factor by prime table starting with highest prime:
+1685022474/13
+129617113
+129617113/13
+9970547
+9970547/13
+766965
+766965/13
+58997
+58997/13
+4538
+4538/13
+349
+349/13
+26
+26/13
+2
+
+final string in three bit blocks:
+010 111 111 111 111 111 111 111 111
+
+apply a dictonary coder:
+	two occurs once, seven occurs eight times.
+	using only three bit binary, we can say:
+add two once, add seven seven times, add seven once
+2  *1   7  *7   7  *1
+010 001 111 111 111 001
+
+collate the bits into a file:
+010001111111111001
+
+size of output: 18 bits
+compression rate of 56% which is on par with the 7z algorithm
