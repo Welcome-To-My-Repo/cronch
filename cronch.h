@@ -6,5 +6,5 @@
 
 fstream cronchFile;
 
-int compress (char *file);
-int decompress (char *file);
+int compress ();
+int decompress ();
