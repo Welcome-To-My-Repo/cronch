@@ -12,7 +12,7 @@ std::fstream cronchFile;
 
 int compress ();
 int decompress ();
-int find_primes (std::string &PrimeDivisors, unsigned long long int to_decimal);
+int find_primes (std::vector <std::string> &PrimeDivisors, unsigned long long int to_decimal);
 
 static const int PRIMES[4] = {2, 3, 5, 7};
 

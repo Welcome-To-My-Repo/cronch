@@ -32,7 +32,7 @@ int compress ()
 	std::bitset <32> *binarycollate;
 	std::bitset <8> blocks[4];
 	unsigned long long int to_decimal;
-	std::string PrimeDivisors;
+	std::vector <std::string> PrimeDivisors;
 	std::string FinalString;
 	cronchOUT.open ("file.cronch", std::ios::out | std::ios::binary);
 	cronchIN.open ("test/test.txt", std::ios::in | std::ios::binary | std::ios::ate);
@@ -53,7 +53,6 @@ int compress ()
 	{
 		if (cronchIN.eof())
 			break;
-		std::cout << "loop start" << std::endl;
 		cronchIN.read (_32bit, 4);
 		_8bit = _32bit[0];
 		blocks[0] = std::bitset <8> (_8bit);
@@ -79,38 +78,87 @@ int compress ()
 
 		if (to_decimal == 0)
 		{
-			PrimeDivisors += std::to_string (to_decimal);
+			PrimeDivisors.push_back (std::to_string (to_decimal));
 		}
 		else
 		find_primes (PrimeDivisors, to_decimal);
-		std::cout << "Primes" << std::endl << PrimeDivisors << std::endl;
 
-		int consecutive;
-		std::string currentnumber, comparison;
-		char getstuff[100];
-		std::stringstream factors;
-		factors.str (PrimeDivisors);
-		factors.getline (getstuff, 100, ' ');
-		factors.get ();
-		currentnumber.assign (getstuff);
-		while (!factors.eof ())
+		std::bitset <32> *extra_prime;
+		std::string separate_prime;
+		char eightbit[1];
+		uint32_t convert;
+		std::bitset <4> factors[2];
+		std::bitset <8> *writeout;
+		int consecutive = 1;
+		std::string current, comparison;
+		current = PrimeDivisors.front ();
+		for (int i = 1; i < PrimeDivisors.capacity (); i ++)
 		{
-			factors.getline (getstuff, 100, ' ');
-			factors.get ();
-			comparison.assign (getstuff);
-			if (currentnumber == comparison)
+			comparison = PrimeDivisors.at (i);
+			if (current == comparison)
 			{
 				consecutive ++;
 			}
 			else
 			{
-				FinalString += std::to_string (consecutive) + " " + currentnumber + " ";
-				currentnumber = comparison;
+				if (std::stoull (current) > 15)
+				{
+					writeout = new std::bitset <8> (0);
+					eightbit[0] = writeout->to_ullong ();
+					cronchOUT.write (eightbit, 1);
+					cronchOUT.put (std::stoull (current));
+					extra_prime = new std::bitset <32> (std::stoull (current));
+					std::cout << writeout->to_string () << " " << extra_prime->to_string () << " ";
+				}
+				else
+				{
+					factors[0] = std::bitset <4> (consecutive);
+					factors[1] = std::bitset <4> (std::stoi (current));
+					writeout = new std::bitset <8> ();
+					for (int i = 4; i < 8; i ++)
+					{
+						writeout->set (i, factors[0].test(i-4));
+					}
+					for (int i = 0; i < 3; i++)
+					{
+						writeout->set (i, factors[1].test(i));
+					}
+					eightbit[0] = writeout->to_ullong ();
+					cronchOUT.write (eightbit, 1);
+					std::cout << writeout->to_string () << " ";
+				}
+				current = comparison;
 				consecutive = 1;
 			}
+			if (std::stoull (current) > 15)
+			{
+				writeout = new std::bitset <8> (0);
+				eightbit[0] = writeout->to_ullong ();
+				cronchOUT.write (eightbit, 1);
+				//cronchOUT.put (std::stoull (current));
+				extra_prime = new std::bitset <32> (std::stoull (current));
+				convert = extra_prime->to_ullong ();
+				std::cout << writeout->to_string () << " " << extra_prime->to_string () << " ";
+			}
+			else
+			{
+				factors[0] = std::bitset <4> (consecutive);
+				factors[1] = std::bitset <4> (std::stoi (current));
+				writeout = new std::bitset <8> ();
+				for (int i = 4; i < 8; i ++)
+				{
+					writeout->set (i, factors[0].test(i-4));
+				}
+				for (int i = 0; i < 3; i++)
+				{
+					writeout->set (i, factors[1].test(i));
+				}
+				eightbit[0] = writeout->to_ullong ();
+				cronchOUT.write (eightbit, 1);
+				std::cout << writeout->to_string () << " ";
+			}
 		}
-		std::cout << FinalString << std::endl;
-
+		std::cout << std::endl;
 	}
 	return 0;
 
@@ -121,24 +169,22 @@ int decompress ()
 	return 0;
 }
 
-int find_primes (std::string &PrimeDivisors, unsigned long long int to_decimal)
+int find_primes (std::vector <std::string> &PrimeDivisors, unsigned long long int to_decimal)
 {
 	bool not_prime = true;
 	while (not_prime)
 	{
 		not_prime = false;
-		std::cout << "loop" << std::endl;
 		for (int i = 15; i > 1; i--)
 		{
 			if (to_decimal%i == 0)
 			{
-				PrimeDivisors += std::to_string (i);
-				PrimeDivisors += " ";
+				PrimeDivisors.push_back (std::to_string (i));
 				to_decimal = to_decimal/i;
 				not_prime = true;
 			}
 		}
 	}
-	PrimeDivisors += std::to_string (to_decimal);
+	PrimeDivisors.push_back (std::to_string (to_decimal));
 	return 0;
 }
