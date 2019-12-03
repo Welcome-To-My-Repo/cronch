@@ -15,13 +15,13 @@ table of primes:
 14	41
 15	43
 
-size of original: 32 bits (4 bytes)
+size of original stream: 32 bits (4 bytes)
 "test"
 
 convert to bytes:
 01110100 01100101 01110011 01110100
 
-collate all bytes:
+append all bytes into a single 32 bit value:
 01110100011001010111001101110100
 
 convert to a decimal number:
@@ -39,18 +39,22 @@ factor by prime table starting with highest prime:
 571/43
 13
 
-final string in four bit blocks:
-0111 1111 1111 1111 1111 1111
+arrange the prime divisors starting with the remainder using their position in
+the table of primes:
+"7 15 15 15 15 15"
 
-apply a dictionary coder:
-	seven occurs once and fifteen occurs five times.
-	using only four bit binary, we can say:
-	seven times one, fifteen times five.
-7   *1    15  *5
-0111 0001 1111 0101
+apply run length encoding by writing the number of times the value occurs
+consecutively and then the value from the string;
+"1 7 5 15"
+
+convert the four numbers back to binary:
+"0001 0111 0101 1111"
 
 collate the bits into a file
-0111000111110101
+0001011101011111
 
 size of output: 16 bits
 compression rate of 50%
+
+if there is a prime number (can't be factored), the leading four bits are all
+zeroes and the prime number is left as a 32 bit value.
