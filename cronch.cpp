@@ -36,11 +36,13 @@ int compress ()
 	while (!cronchIN.eof ())
 	{
 		cronchIN.read (_32bit, 4);
-		//cronchOUT.write (_32bit, 4);
-		blocks[0] = std::bitset <8> (std::string (1, _32bit[0]));
-		blocks[1] = std::bitset <8> (std::string (1, _32bit[1]));
-		blocks[2] = std::bitset <8> (std::string (1, _32bit[2]));
-		blocks[3] = std::bitset <8> (std::string (1, _32bit[3]));
+		_8bit = _32bit[0];
+		blocks[0] = std::bitset <8> (_8bit);
+		_8bit = _32bit[1];
+		blocks[1] = std::bitset <8> (_8bit);
+		
+		blocks[2] = std::bitset <8> (_8bit);
+		blocks[3] = std::bitset <8> (_8bit);
 		combine.append (blocks[0].to_string ());
 		std::cout << combine << " ";
 		combine.append (blocks[1].to_string ());
