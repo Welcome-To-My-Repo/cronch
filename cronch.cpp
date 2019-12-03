@@ -37,21 +37,21 @@ int compress ()
 	{
 		cronchIN.read (_32bit, 4);
 		//cronchOUT.write (_32bit, 4);
-		blocks[0] = new std::bitset<8>::bitset (std::string (_32bit[0]));
-		//blocks[1] = new std::bitset (std::string (_32bit[1]));
-		//blocks[2] = new std::bitset (std::string (_32bit[2]));
-		//blocks[3] = new std::bitset (std::string (_32bit[3]));
-		combine.append (blocks[0].to_string <char,std::string::traits_type,std::string::allocator_type());
+		blocks[0] = new std::bitset<8> (std::string (_32bit[0]));
+		blocks[1] = new std::bitset<8>::bitset (std::string (_32bit[1]));
+		blocks[2] = new std::bitset<8>::bitset (std::string (_32bit[2]));
+		blocks[3] = new std::bitset<8>::bitset (std::string (_32bit[3]));
+		combine.append (blocks[0].to_string ());
 		std::cout << combine << " ";
-		combine.append (blocks[1].to_string <char,std::string::traits_type,std::string::allocator_type());
+		combine.append (blocks[1].to_string ());
 		std::cout << combine << " ";
-		combine.append (blocks[2].to_string <char,std::string::traits_type,std::string::allocator_type());
+		combine.append (blocks[2].to_string ());
 		std::cout << combine << " ";
-		combine.append (blocks[3].to_string <char,std::string::traits_type,std::string::allocator_type());
+		combine.append (blocks[3].to_string ());
 		std::cout << combine << " ";
 		std::endl;
-		binarycollate = new std::bitset (combine);
-		to_decimal = binarycollate.to_ullong ();
+		binarycollate = new std::bitset<32>::bitset (combine);
+		to_decimal = binarycollate->to_ullong ();
 		std::cout << to_decimal << std::endl;
 	}
 	return 0;
