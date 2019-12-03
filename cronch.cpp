@@ -27,7 +27,7 @@ int compress ()
 	int64_t collate_to_decimal = 0;
 	std::string combine = "";
 	std::bitset <32> *binarycollate;
-	std::bitset <8> *blocks;
+	std::bitset <8> blocks[4];
 	unsigned long long int to_decimal;
 	cronchOUT.open ("file.cronch", std::ios::out | std::ios::binary);
 	cronchIN.open ("test/test.txt", std::ios::in | std::ios::binary);
@@ -37,10 +37,10 @@ int compress ()
 	{
 		cronchIN.read (_32bit, 4);
 		//cronchOUT.write (_32bit, 4);
-		blocks[0] = new std::bitset<8> (std::string (_32bit[0]));
-		blocks[1] = new std::bitset<8>::bitset (std::string (_32bit[1]));
-		blocks[2] = new std::bitset<8>::bitset (std::string (_32bit[2]));
-		blocks[3] = new std::bitset<8>::bitset (std::string (_32bit[3]));
+		blocks[0] = std::bitset <8> (std::string (1, _32bit[0]));
+		blocks[1] = std::bitset <8> (std::string (1, _32bit[1]));
+		blocks[2] = std::bitset <8> (std::string (1, _32bit[2]));
+		blocks[3] = std::bitset <8> (std::string (1, _32bit[3]));
 		combine.append (blocks[0].to_string ());
 		std::cout << combine << " ";
 		combine.append (blocks[1].to_string ());
