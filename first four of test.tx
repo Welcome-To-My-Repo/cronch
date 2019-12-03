@@ -1,0 +1,56 @@
+table of primes:
+1	1
+2	2
+3	3
+4	5
+5	7
+6	11
+7	13
+8	17
+9	19
+10	23
+11	29
+12	31
+13	37
+14	41
+15	43
+
+size of original: 32 bits (4 bytes)
+"test"
+
+convert to bytes:
+01110100 01100101 01110011 01110100
+
+collate all bytes:
+01110100011001010111001101110100
+
+convert to a decimal number:
+1952805748
+
+factor by prime table starting with highest prime:
+1952805748/43
+45414087
+45414087/43
+1056141
+1056141/43
+24561
+24561/43
+571
+571/43
+13
+
+final string in four bit blocks:
+0111 1111 1111 1111 1111 1111
+
+apply a dictionary coder:
+	seven occurs once and fifteen occurs five times.
+	using only four bit binary, we can say:
+	seven times one, fifteen times five.
+7   *1    15  *5
+0111 0001 1111 0101
+
+collate the bits into a file
+0111000111110101
+
+size of output: 16 bits
+compression rate of 50%
