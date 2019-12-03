@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <string>
 #include <cstring>
+#include <cstdint>
 
 std::fstream cronchFile;
 

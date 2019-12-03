@@ -25,11 +25,15 @@ int compress ()
 	cronchOUT.open ("file.cronch", std::ios::out | std::ios::binary);
 	cronchIN.open ("test/test.txt", std::ios::in | std::ios::binary);
 	char bit64 [4];
+	int8_t bit8;
+	if (!cronchIN.is_open ())
+		return 0;
 	while (!cronchIN.eof ())
 	{
 		cronchIN.read (bit64, 4);
 		cronchOUT.write (bit64, 4);
 	}
+	return 0;
 
 }
 
