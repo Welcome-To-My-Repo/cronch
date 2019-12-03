@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cstdint>
 #include <vector>
+#include <bitset>
 
 std::fstream cronchFile;
 
@@ -40,5 +41,4 @@ struct EightBit
 		_2,
 		_1;
 };
-bool binarycollate [32];
-static int64_t _4byte = 4294967295;
+static long long int _4byte = 4294967295;
