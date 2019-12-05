@@ -2,21 +2,21 @@
 
 int main (int argc, char **argv)
 {
-	std::cout << argv[1] << std::endl;
-/*
 	if (argc < 2)
+	{
+		std::cout << "No mode specified!" << std::endl;
 		return 1;
-
+	}
 	if (argc < 3)
+	{
+		std::cout << "No stream to compress!" << std::endl;
 		return 2;
-*/
-	if (argc < 2)
-		return 1;
-	if (strcmp (argv[1], "c") == 0)
-		compress ();
-	if (strcmp (argv[1], "d") == 0)
-		decompress ();
-
+	}
+	if (argv[1][0] != 'c' and argv[1][0] != 'd')
+	{
+		std::cout << "Incorrect mode!" << std::endl;
+		return 3;
+	}
 	return 0;
 }
 
