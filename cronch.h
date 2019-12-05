@@ -16,16 +16,4 @@ int find_primes (std::vector <std::string> &PrimeDivisors, unsigned long long in
 
 static const int PRIMES[4] = {2, 3, 5, 7};
 
-struct EightBit
-{
-	bool
-		_128,
-		_64,
-		_32,
-		_16,
-		_8,
-		_4,
-		_2,
-		_1;
-};
 static long long int _4byte = 4294967295;
