@@ -17,6 +17,7 @@ int main (int argc, char **argv)
 		std::cout << "Incorrect mode!" << std::endl;
 		return 3;
 	}
+	
 	return 0;
 }
 
