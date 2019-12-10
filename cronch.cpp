@@ -12,10 +12,37 @@ int main (int argc, char **argv)
 		std::cout << "No stream to compress!" << std::endl;
 		return 2;
 	}
+	if (argc < 4)
+	{
+		std::cout << "No output name given!" << std::endl;
+		return 3;
+	}
 	if (argv[1][0] != 'c' and argv[1][0] != 'd')
 	{
 		std::cout << "Incorrect mode!" << std::endl;
-		return 3;
+		return 4;
+	}
+	std::ifstream cronchIN;
+	std::ofstream cronchOUT;
+	
+	cronchIN.open (argv[2]);
+	cronchOUT.open (argv[3]);
+	if (!cronchIN.is_open ())
+	{
+		std::cout << "Could not open input stream!" << std::endl;
+		return 5;
+	}
+	if (!cronchOUT.is_open ())
+	{
+		std::cout << "Could not open output stream!" << std::endl;
+		return 6;
+	}
+	if (argv[1][0] == 'c')
+	{
+		
+	}
+	else 
+	{
 	}
 	
 	return 0;
