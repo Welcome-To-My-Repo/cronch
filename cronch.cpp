@@ -39,6 +39,15 @@ int main (int argc, char **argv)
 	}
 	if (argv[1][0] == 'c')
 	{
+		std::string all64bits;
+		std::bitset <64>* all4char;
+		std::bitset <8> charset[4];
+		char readin [4];
+
+		while (cronchIN.read (readin, 4))
+		{
+			charset[0] = std::bitset<8> (readin[0]);
+		}
 		
 	}
 	else 
