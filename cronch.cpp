@@ -121,8 +121,9 @@ int main (int argc, char **argv)
 						}
 					}
 				}
+				for (int i = 0; i < factors.size (); i ++)
+					std::cout << factors.at (i) << std::endl;
 				std::cout << dividend << std::endl;
-
 
 			}
 		}
