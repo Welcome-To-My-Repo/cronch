@@ -25,8 +25,8 @@ int main (int argc, char **argv)
 	std::ifstream cronchIN;
 	std::ofstream cronchOUT;
 	
-	cronchIN.open (argv[2]);
-	cronchOUT.open (argv[3]);
+	cronchIN.open (argv[2], std::ios_base::in | std::ios_base::binary);
+	cronchOUT.open (argv[3], std::ios_base::out | std::ios_base::binary);
 	if (!cronchIN.is_open ())
 	{
 		std::cout << "Could not open input stream!" << std::endl;
@@ -37,16 +37,66 @@ int main (int argc, char **argv)
 		std::cout << "Could not open output stream!" << std::endl;
 		return 6;
 	}
+	cronchIN.seekg (0, cronchIN.end);
+	long long int filesize = cronchIN.tellg ();
+	std::cout << "filesize: " << filesize << std::endl;
+	cronchIN.seekg (cronchIN.beg);
+	if (filesize%8 == 0)
+		filesize = filesize/8;
+	else
+		filesize = 1 + filesize/8;
+	std::cout << "adjusted repetitions: " << filesize << std::endl;
 	if (argv[1][0] == 'c')
 	{
-		std::string all64bits;
+		std::string all64bits, leftovers;
 		std::bitset <64>* all4char;
-		std::bitset <8> charset[4];
-		char readin [4];
-
-		while (cronchIN.read (readin, 4))
+		std::bitset <8> charset[8];
+		char readin [8], get[1];
+		bool is_leftovers = false;
+		
+		for (int i = 0; i < filesize; i ++)
 		{
-			charset[0] = std::bitset<8> (readin[0]);
+			std::cout << "loop start..." << std::endl;
+			all64bits.clear ();
+			for (int a = 0; a < 8; a++)
+				readin[a] = -1;
+
+			for (int i = 0; i < 8; i ++)
+			{
+				if (!cronchIN.read (get, 1))
+				{
+					readin[i] = get[0];
+					is_leftovers = true;
+					for (int j = 0; j < 8; j ++)
+					{
+						std::cout << "char " << j << ": " << readin[j] << std::endl;
+						if (readin[j] == -1)
+							break;
+						else
+							leftovers.push_back (readin[j]);
+					}
+					break;
+				}
+				else
+					readin[i] = get[0];
+			}
+
+			if (is_leftovers)
+			{
+				std::cout << leftovers << std::endl;
+			}
+			else
+			{
+				for (int i = 0; i < 8; i ++)
+					charset [i] = std::bitset <8> (readin[i]);
+
+				for (int i = 0; i < 8; i++)
+					all64bits.append (charset[i].to_string ());
+
+				std::cout << all64bits << std::endl;
+
+				cronchOUT.write (readin, 8);
+			}
 		}
 		
 	}

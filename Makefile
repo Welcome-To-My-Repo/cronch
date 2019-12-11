@@ -5,3 +5,6 @@ cronch: cronch.h
 
 clean:
 	rm -f cronch
+
+run:
+	./cronch c ./test/test.txt file.cronch
