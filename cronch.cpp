@@ -49,14 +49,15 @@ int main (int argc, char **argv)
 	if (argv[1][0] == 'c')
 	{
 		std::string all64bits, leftovers;
-		std::bitset <64>* all4char;
+		std::bitset <64>* all8char;
 		std::bitset <8> charset[8];
 		char readin [8], get[1];
 		bool is_leftovers = false;
+		uint64_t original, dividend, remainder, prime, difference, factorProduct = 1, totalremainder = 0;
+		bool factoring = true;
 		
 		for (int i = 0; i < filesize; i ++)
 		{
-			std::cout << "loop start..." << std::endl;
 			all64bits.clear ();
 			for (int a = 0; a < 8; a++)
 				readin[a] = -1;
@@ -69,9 +70,13 @@ int main (int argc, char **argv)
 					is_leftovers = true;
 					for (int j = 0; j < 8; j ++)
 					{
-						std::cout << "char " << j << ": " << readin[j] << std::endl;
 						if (readin[j] == -1)
 							break;
+						else if (readin[j] == '\n')
+						{
+							leftovers.push_back (readin[j]);
+							break;
+						}
 						else
 							leftovers.push_back (readin[j]);
 					}
@@ -94,8 +99,13 @@ int main (int argc, char **argv)
 					all64bits.append (charset[i].to_string ());
 
 				std::cout << all64bits << std::endl;
-
-				cronchOUT.write (readin, 8);
+				all8char = new std::bitset <64> (all64bits.c_str ());
+				original = all8char->to_ullong ()
+				while (true)
+				{
+					
+				}
+				
 			}
 		}
 		
