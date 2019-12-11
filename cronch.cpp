@@ -24,7 +24,7 @@ int main (int argc, char **argv)
 	}
 	std::ifstream cronchIN;
 	std::ofstream cronchOUT;
-	
+
 	cronchIN.open (argv[2], std::ios_base::in | std::ios_base::binary);
 	cronchOUT.open (argv[3], std::ios_base::out | std::ios_base::binary);
 	if (!cronchIN.is_open ())
@@ -55,10 +55,12 @@ int main (int argc, char **argv)
 		bool is_leftovers = false;
 		uint64_t original, dividend, remainder, prime, difference, factorProduct = 1, totalremainder = 0;
 		bool factoring = true;
-		
+		std::vector <long long int> factors;
+
 		for (int i = 0; i < filesize; i ++)
 		{
 			all64bits.clear ();
+			factors.clear ();
 			for (int a = 0; a < 8; a++)
 				readin[a] = -1;
 
@@ -99,21 +101,37 @@ int main (int argc, char **argv)
 					all64bits.append (charset[i].to_string ());
 
 				std::cout << all64bits << std::endl;
+
 				all8char = new std::bitset <64> (all64bits.c_str ());
-				original = all8char->to_ullong ()
-				while (true)
+				original = all8char->to_ullong ();
+				dividend = original;
+				std::cout << "factoring dividend: " << dividend << std::endl;
+				while (factoring)
 				{
-					
+					std::cout << "current dividend: " << dividend << std::endl;
+					factoring = false;
+					for (int j = 14; j > -1; j--)
+					{
+						if (dividend%primes[j] == 0)
+						{
+							std::cout << "factor: " << primes[j] << std::endl;
+							factors.push_back (j);
+							factoring = true;
+							dividend = dividend/primes[j];
+						}
+					}
 				}
-				
+				std::cout << dividend << std::endl;
+
+
 			}
 		}
-		
+
 	}
-	else 
+	else
 	{
 	}
-	
+
 	return 0;
 }
 
