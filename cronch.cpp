@@ -56,6 +56,9 @@ int main (int argc, char **argv)
 		uint64_t original, dividend, remainder, prime, difference, factorProduct = 1, totalremainder = 0;
 		bool factoring = true;
 		std::vector <long long int> factors;
+		std::vector <int> run_comp_factors (15, 0);
+		std::bitset <4> write_factors [2];
+		std::bitset <8> *writeout;
 
 		for (int i = 0; i < filesize; i ++)
 		{
@@ -124,6 +127,29 @@ int main (int argc, char **argv)
 				for (int i = 0; i < factors.size (); i ++)
 					std::cout << factors.at (i) << std::endl;
 				std::cout << dividend << std::endl;
+
+				for (int j = 0; j < factors.size (); j ++)
+				{
+					run_comp_factors.at (factors.at (j)) ++;
+				}
+				for (int i = 0; i < 15; i ++)
+				{
+					if (run_comp_factors.at(i) != 0)
+						std::cout << "compressed factor set: " << i << " - " << run_comp_factors.at (i) << std::endl;
+				}
+				for (int j = 0; j < 15; j ++)
+				{
+					if (run_comp_factors.at (j) != 0)
+					{
+						write_factors[0] = std::bitset <4> (run_comp_factors.at (j));
+						write_factors[1] = std::bitset <4> (j);
+						std::string temp;
+						temp.push_back (write_factors[0].to_string ());
+						temp.push_back (write_factors[1].to_string ());
+						writeout = new std::bitset <8> (temp.c_str ()));
+						
+					}
+				}
 
 			}
 		}
