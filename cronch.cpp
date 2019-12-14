@@ -2,6 +2,7 @@
 
 int main (int argc, char **argv)
 {
+//check arguments
 	if (argc < 2)
 	{
 		std::cout << "No mode specified!" << std::endl;
@@ -22,6 +23,7 @@ int main (int argc, char **argv)
 		std::cout << "Incorrect mode!" << std::endl;
 		return 4;
 	}
+//create file input and output streams
 	std::ifstream cronchIN;
 	std::ofstream cronchOUT;
 
@@ -37,18 +39,23 @@ int main (int argc, char **argv)
 		std::cout << "Could not open output stream!" << std::endl;
 		return 6;
 	}
+//get the size of the input file
 	cronchIN.seekg (0, cronchIN.end);
 	long long int filesize = cronchIN.tellg ();
 	std::cout << "filesize: " << filesize << std::endl;
 	cronchIN.seekg (cronchIN.beg);
+//check if filesize can be completely sectioned into 8 byte blocks
+//if not, adjust number of blocks to be compressed
 	if (filesize%8 == 0)
 		filesize = filesize/8;
 	else
 		filesize = 1 + filesize/8;
 	std::cout << "adjusted repetitions: " << filesize << std::endl;
+//if arguments was for compression, compress the input file
 	if (argv[1][0] == 'c')
 	{
-		std::string all64bits, leftovers;
+//initialize the stuff
+		std::string all64bits, leftovers, temp;
 		std::bitset <64>* all8char;
 		std::bitset <8> charset[8];
 		char readin [8], get[1];
@@ -59,16 +66,30 @@ int main (int argc, char **argv)
 		std::vector <int> run_comp_factors (15, 0);
 		std::bitset <4> write_factors [2];
 		std::bitset <8> *writeout;
-
+		uint64_t to_char_convert;
+		char cronchPUT[1];
+		std::bitset <8> *short_out;
+		std::bitset <16> *long_out_16;
+		std::bitset <32> *long_out_32;
+		std::bitset <64> *long_out_64;
+		int short_counter;
+//this loops once to process each 8 byte block from the file
 		for (int i = 0; i < filesize; i ++)
 		{
+			std::cout << "loop start" << std::endl;
 			all64bits.clear ();
 			factors.clear ();
+			temp.clear ();
+			bool is_factoring = true;
+			factors.clear ();
+			//run_comp_factors.clear ();
+//set the input string to default
 			for (int a = 0; a < 8; a++)
 				readin[a] = -1;
-
+//read in 8 bytes
 			for (int i = 0; i < 8; i ++)
 			{
+//if it can't read in 8 bytes, save what it has to a "leftover" string and exit the loop
 				if (!cronchIN.read (get, 1))
 				{
 					readin[i] = get[0];
@@ -90,243 +111,304 @@ int main (int argc, char **argv)
 				else
 					readin[i] = get[0];
 			}
-
+//if it's at the end of the file and it can't get another 8 byte block, do stuff
 			if (is_leftovers)
 			{
-				std::cout << leftovers << std::endl;
+				//std::cout << leftovers << std::endl;
+				for (int b = 0; b < leftovers.size (); b ++)
+				{
+					cronchPUT[0] = leftovers[b];
+					cronchOUT.write (cronchPUT, 1);
+				}
 			}
+//if it's not at the end of the file, start the compression algorithm
 			else
 			{
+//separate the 8 bytes
 				for (int i = 0; i < 8; i ++)
 					charset [i] = std::bitset <8> (readin[i]);
-
+//take the binary representation of each byte and combine them into a 64 bit binary value
 				for (int i = 0; i < 8; i++)
 					all64bits.append (charset[i].to_string ());
 
-				std::cout << all64bits << std::endl;
-
+				//std::cout << all64bits << std::endl;
+//put the 64 bit binary value into a bitset class because...
 				all8char = new std::bitset <64> (all64bits.c_str ());
+//convert the binary representation to a 64 bit integer
 				original = all8char->to_ullong ();
+//duplicate to preserve the initial value
 				dividend = original;
-				std::cout << "factoring dividend: " << dividend << std::endl;
+				//std::cout << "factoring dividend: " << dividend << std::endl;
+//factor the value by small prime numbers
 				while (factoring)
 				{
-					std::cout << "current dividend: " << dividend << std::endl;
+					//std::cout << "current dividend: " << dividend << std::endl;
 					factoring = false;
+//check which prime is a factor
 					for (int j = 14; j > -1; j--)
 					{
 						if (dividend%primes[j] == 0)
 						{
-							std::cout << "factor: " << primes[j] << std::endl;
+							//std::cout << "factor: " << primes[j] << std::endl;
 							factors.push_back (j);
 							factoring = true;
 							dividend = dividend/primes[j];
 						}
 					}
 				}
-				for (int i = 0; i < factors.size (); i ++)
-					std::cout << factors.at (i) << std::endl;
-				std::cout << dividend << std::endl;
 
+				for (int i = 0; i < factors.size (); i ++)
+					//std::cout << factors.at (i) << std::endl;
+				//std::cout << dividend << std::endl;
+//combine same factors
 				for (int j = 0; j < factors.size (); j ++)
 				{
 					run_comp_factors.at (factors.at (j)) ++;
 				}
+
 				for (int i = 0; i < 15; i ++)
 				{
 					if (run_comp_factors.at(i) != 0)
-						std::cout << "compressed factor set: " << i << " - " << run_comp_factors.at (i) << std::endl;
+						break;
+						//std::cout << "compressed factor set: " << i << " - " << run_comp_factors.at (i) << std::endl;
 				}
 				for (int j = 0; j < 15; j ++)
 				{
+//if the prime factor is multiplied more than zero times do this stuff
 					if (run_comp_factors.at (j) != 0)
 					{
-						write_factors[0] = std::bitset <4> (run_comp_factors.at (j));
-						write_factors[1] = std::bitset <4> (j);
-						std::string temp;
-						temp.push_back (write_factors[0].to_string ());
-						temp.push_back (write_factors[1].to_string ());
-						writeout = new std::bitset <8> (temp.c_str ()));
-						
+//if the prime factor is multiplied more than 15 (maximum 4 bit value) times do this stuff
+						if (run_comp_factors.at (j) > 15)
+						{
+							int x = run_comp_factors.at (j);
+							for (int k = 0; k < x/15; k ++)
+							{
+								temp.clear ();
+								write_factors[0] = std::bitset<4> (15);
+								write_factors[1] = std::bitset<4> (j);
+								temp.push_back (write_factors[0].to_string ().c_str ()[0]);
+								temp.push_back (write_factors[1].to_string ().c_str ()[0]);
+								writeout = new std::bitset <8> (temp.c_str ());
+								to_char_convert = writeout->to_ullong ();
+								//std::cout << "writing to file: " << to_char_convert << " ";
+								cronchPUT[0] = (char)to_char_convert;
+								std::cout << cronchPUT[0] << std::endl;
+								cronchOUT.write (cronchPUT, 1);
+
+							}
+							if (x%15 != 0)
+							{
+								temp.clear ();
+								write_factors[0] = std::bitset<4> (x%15);
+								write_factors[1] = std::bitset<4> (j);
+								temp.push_back (write_factors[0].to_string ().c_str ()[0]);
+								temp.push_back (write_factors[1].to_string ().c_str ()[0]);
+								writeout = new std::bitset <8> (temp.c_str ());
+								to_char_convert = writeout->to_ullong ();
+								//std::cout << "writing to file: " << to_char_convert << " ";
+								cronchPUT[0] = (char)to_char_convert;
+								std::cout << cronchPUT[0] << std::endl;
+								cronchOUT.write (cronchPUT, 1);
+							}
+						}
+//if the prime factor is multiplied under 16 times do this stuff
+						else
+						{
+							temp.clear ();
+							write_factors[0] = std::bitset <4> (run_comp_factors.at (j));
+							write_factors[1] = std::bitset <4> (j);
+							std::string temp;
+							//std::cout << " write factors: " << write_factors[0].to_string ().c_str () << " " << write_factors[1].to_string ().c_str () << std::endl;
+							temp.append (write_factors[0].to_string ());
+							temp.append (write_factors[1].to_string ());
+							writeout = new std::bitset <8> (temp.c_str ());
+							std::cout << writeout->to_string () << std::endl;
+							to_char_convert = writeout->to_ullong ();
+							//std::cout << "writing to file: " << to_char_convert << " ";
+							cronchPUT[0] = (char)to_char_convert;
+							std::cout << cronchPUT[0] << std::endl;
+							cronchOUT.write (cronchPUT, 1);
+						}
+
 					}
 				}
-
-			}
-		}
-
-	}
-	else
-	{
-	}
-
-	return 0;
-}
-
-int compress ()
-{
-	std::ifstream cronchIN;
-	std::ofstream cronchOUT;
-	char _32bit [4];
-	int8_t _8bit;
-	int64_t collate_to_decimal = 0;
-	long long int filesize;
-	std::string combine = "";
-	std::bitset <32> *binarycollate;
-	std::bitset <8> blocks[4];
-	unsigned long long int to_decimal;
-	std::vector <std::string> PrimeDivisors;
-	std::string FinalString;
-	cronchOUT.open ("file.cronch", std::ios::out | std::ios::binary);
-	cronchIN.open ("test/test.txt", std::ios::in | std::ios::binary | std::ios::ate);
-	if (!cronchIN.is_open ())
-		return 1;
-	filesize = cronchIN.tellg ();
-	cronchIN.seekg (std::ios_base::beg);
-	if (!cronchIN.is_open ())
-		return 0;
-
-	std::cout << "filesize " << filesize << std::endl;
-	if (filesize%4 == 0)
-		filesize = filesize/4;
-	else
-		filesize = filesize%4 + filesize/4;
-	std::cout << "filesize " << filesize << std::endl;
-	for (long long int a = 0; a < filesize; a ++)
-	{
-		if (cronchIN.eof())
-			break;
-		cronchIN.read (_32bit, 4);
-		_8bit = _32bit[0];
-		blocks[0] = std::bitset <8> (_8bit);
-		_8bit = _32bit[1];
-		blocks[1] = std::bitset <8> (_8bit);
-		_8bit = _32bit[2];
-		blocks[2] = std::bitset <8> (_8bit);
-		_8bit = _32bit[3];
-		blocks[3] = std::bitset <8> (_8bit);
-
-		combine.append (blocks[0].to_string ());
-		std::cout << combine << " ";
-		combine.append (blocks[1].to_string ());
-		std::cout << combine << " ";
-		combine.append (blocks[2].to_string ());
-		std::cout << combine << " ";
-		combine.append (blocks[3].to_string ());
-		std::cout << combine << " " << std::endl;
-		binarycollate = new std::bitset<32> (combine.c_str ());
-		to_decimal = binarycollate->to_ullong ();
-		std::cout << to_decimal << std::endl;
-		delete binarycollate;
-
-		if (to_decimal == 0)
-		{
-			PrimeDivisors.push_back (std::to_string (to_decimal));
-		}
-		else
-		find_primes (PrimeDivisors, to_decimal);
-
-		std::bitset <32> *extra_prime;
-		std::string separate_prime;
-		char eightbit[1];
-		uint32_t convert;
-		std::bitset <4> factors[2];
-		std::bitset <8> *writeout;
-		int consecutive = 1;
-		std::string current, comparison;
-		current = PrimeDivisors.front ();
-		for (int i = 1; i < PrimeDivisors.capacity (); i ++)
-		{
-			comparison = PrimeDivisors.at (i);
-			if (current == comparison)
-			{
-				consecutive ++;
-			}
-			else
-			{
-				if (std::stoull (current) > 15)
+//append the leftover really big prime number
+				if (dividend > 0)
 				{
-					writeout = new std::bitset <8> (0);
-					eightbit[0] = writeout->to_ullong ();
-					cronchOUT.write (eightbit, 1);
-					cronchOUT.put (std::stoull (current));
-					extra_prime = new std::bitset <32> (std::stoull (current));
-					std::cout << writeout->to_string () << " " << extra_prime->to_string () << " ";
+					if (dividend > UINT8_MAX)
+					{
+						if (dividend > UINT16_MAX)
+						{
+							if (dividend > UINT32_MAX)
+							{
+								std::cout << "writing 64 bit number" << std::endl;
+								cronchPUT[0] = 4;
+								cronchOUT.write (cronchPUT, 1);
+
+								long_out_64 = new std::bitset<64> (dividend);
+								short_out = new std::bitset <8> ();
+
+								short_counter = 0;
+								for (int i = 56; i < 64; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+								short_counter = 0;
+								for (int i = 48; i < 56; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+								short_counter = 0;
+								for (int i = 40; i < 48; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+								short_counter = 0;
+								for (int i = 32; i < 40; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+								short_counter = 0;
+								for (int i = 24; i < 32; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+								short_counter = 0;
+								for (int i = 16; i < 24; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+								short_counter = 0;
+								for (int i = 8; i < 16; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+								short_counter = 0;
+								for (int i = 0; i < 8; i++)
+								{
+									(*short_out)[short_counter] = (*long_out_64)[i];
+									short_counter ++;
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+
+							}
+							else
+							{
+								cronchPUT[0] = 3;
+								cronchOUT.write (cronchPUT, 1);
+								long_out_32 = new std::bitset<32> (dividend);
+								short_out = new std::bitset <8> ();
+								for (int i = 24; i < 32; i++)
+								{
+									(*short_out)[i] = (*long_out_32)[i];
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+								for (int i = 16; i < 24; i++)
+								{
+									(*short_out)[i] = (*long_out_32)[i];
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+								for (int i = 8; i < 16; i++)
+								{
+									(*short_out)[i] = (*long_out_32)[i];
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+								for (int i = 0; i < 8; i++)
+								{
+									(*short_out)[i] = (*long_out_32)[i];
+								}
+								to_char_convert = short_out->to_ullong ();
+								cronchPUT[0] = (char)to_char_convert;
+								cronchOUT.write (cronchPUT, 1);
+							}
+
+						}
+						else
+						{
+							cronchPUT[0] = 2;
+							cronchOUT.write (cronchPUT, 1);
+							long_out_16 = new std::bitset <16> (dividend);
+							short_out = new std::bitset <8> ();
+							for (int i = 8; i < 16; i++)
+							{
+								(*short_out)[i] = (*long_out_16)[i];
+							}
+							to_char_convert = short_out->to_ullong ();
+							cronchPUT[0] = (char)to_char_convert;
+							cronchOUT.write (cronchPUT, 1);
+							for (int i = 0; i < 8; i++)
+							{
+								(*short_out)[i] = (*long_out_16)[i];
+							}
+							to_char_convert = short_out->to_ullong ();
+							cronchPUT[0] = (char)to_char_convert;
+							cronchOUT.write (cronchPUT, 1);
+						}
+					}
+					else
+					{
+						cronchPUT[0] = 1;
+						cronchOUT.write (cronchPUT, 1);
+						cronchPUT[0] = (char)dividend;
+						cronchOUT.write (cronchPUT, 1);
+					}
 				}
 				else
 				{
-					factors[0] = std::bitset <4> (consecutive);
-					factors[1] = std::bitset <4> (std::stoi (current));
-					writeout = new std::bitset <8> ();
-					for (int i = 4; i < 8; i ++)
-					{
-						writeout->set (i, factors[0].test(i-4));
-					}
-					for (int i = 0; i < 3; i++)
-					{
-						writeout->set (i, factors[1].test(i));
-					}
-					eightbit[0] = writeout->to_ullong ();
-					cronchOUT.write (eightbit, 1);
-					std::cout << writeout->to_string () << " ";
+					cronchPUT[0] = 0;
+					cronchOUT.write (cronchPUT, 1);
 				}
-				current = comparison;
-				consecutive = 1;
-			}
-			if (std::stoull (current) > 15)
-			{
-				writeout = new std::bitset <8> (0);
-				eightbit[0] = writeout->to_ullong ();
-				cronchOUT.write (eightbit, 1);
-				//cronchOUT.put (std::stoull (current));
-				extra_prime = new std::bitset <32> (std::stoull (current));
-				convert = extra_prime->to_ullong ();
-				std::cout << writeout->to_string () << " " << extra_prime->to_string () << " ";
-			}
-			else
-			{
-				factors[0] = std::bitset <4> (consecutive);
-				factors[1] = std::bitset <4> (std::stoi (current));
-				writeout = new std::bitset <8> ();
-				for (int i = 4; i < 8; i ++)
-				{
-					writeout->set (i, factors[0].test(i-4));
-				}
-				for (int i = 0; i < 3; i++)
-				{
-					writeout->set (i, factors[1].test(i));
-				}
-				eightbit[0] = writeout->to_ullong ();
-				cronchOUT.write (eightbit, 1);
-				std::cout << writeout->to_string () << " ";
 			}
 		}
-		std::cout << std::endl;
+		cronchOUT.close ();
+		cronchIN.close ();
 	}
-	return 0;
-
-}
-
-int decompress ()
-{
-	return 0;
-}
-
-int find_primes (std::vector <std::string> &PrimeDivisors, unsigned long long int to_decimal)
-{
-	bool not_prime = true;
-	while (not_prime)
+	else
 	{
-		not_prime = false;
-		for (int i = 15; i > 1; i--)
-		{
-			if (to_decimal%i == 0)
-			{
-				PrimeDivisors.push_back (std::to_string (i));
-				to_decimal = to_decimal/i;
-				not_prime = true;
-			}
-		}
 	}
-	PrimeDivisors.push_back (std::to_string (to_decimal));
+
 	return 0;
 }
