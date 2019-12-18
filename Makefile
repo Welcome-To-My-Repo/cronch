@@ -7,4 +7,4 @@ clean:
 	rm -f cronch
 
 run:
-	./cronch c ./test/test.txt file.cronch
+	./cronch c test.txt file.cronch

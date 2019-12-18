@@ -68,7 +68,12 @@ int main (int argc, char **argv)
 	{
 //check if filesize can be completely sectioned into 8 byte blocks
 //if not, adjust number of blocks to be compressed
-			if (filesize%4 == 0)
+			if (filesize < 4)
+			{
+				std::cout << "filesize is too small" << std::endl;
+				return 7;
+			}
+			else if (filesize%4 == 0)
 			{
 				filesize = filesize/4;
 				is_leftovers = false;
@@ -130,9 +135,13 @@ int main (int argc, char **argv)
 						if (primes[a] == dividend)
 						{
 							factors.push_back (a);
+							std::cout << primes[a] << " ";
+							factorProduct = factorProduct * primes[a];
 							factoring = false;
 							break;
 						}
+					if (!factoring)
+						continue;
 					for (int a = 14; a > -1; a --)
 					{
 						if (dividend%primes[a] < remainder)
@@ -143,7 +152,7 @@ int main (int argc, char **argv)
 					std::cout << primes[prime] << ", ";
 					dividend = dividend/primes[prime];
 					factors.push_back (prime);
-					factorProduct = factorProduct * primes[prime] + dividend%primes[prime];
+					factorProduct = factorProduct * primes[prime];
 				}
 				std::cout << std::endl;
 				difference = original - factorProduct;
@@ -152,10 +161,13 @@ int main (int argc, char **argv)
 				<< "factorProduct: " << factorProduct << std::endl
 				<< "diference: " << difference << std::endl << std::endl;;
 //combine same factors
+				std::cout << "list of factors: " << std::endl;
 				for (int j = 0; j < factors.size (); j ++)
 				{
+					std::cout << primes[factors.at (j)] << " ";
 					run_comp_factors.at (factors.at (j)) ++;
 				}
+				std::cout << std::endl;
 				std::cout << "writing out factors:" << std::endl;
 				for (int j = 0; j < 15; j ++)
 				{
@@ -171,7 +183,7 @@ int main (int argc, char **argv)
 								write_factors[1] = std::bitset<4> (j);
 								temp.append (write_factors[0].to_string ());
 								temp.append (write_factors[1].to_string ());
-								std::cout << "byte: " << temp << std::endl;
+								std::cout << "byte = 15: " << temp << std::endl;
 								writeout = new std::bitset<8> (temp.c_str ());
 								cronchPUT[0] = (char)writeout->to_ulong ();
 								cronchOUT.write (cronchPUT, 1);
@@ -184,7 +196,7 @@ int main (int argc, char **argv)
 								write_factors[1] = std::bitset<4> (j);
 								temp.append (write_factors[0].to_string ());
 								temp.append (write_factors[1].to_string ());
-								std::cout << "byte: " << temp << std::endl;
+								std::cout << "byte = remaining: " << temp << std::endl;
 								writeout = new std::bitset<8> (temp.c_str ());
 								cronchPUT[0] = (char)writeout->to_ulong ();
 								cronchOUT.write (cronchPUT, 1);
@@ -197,14 +209,13 @@ int main (int argc, char **argv)
 							write_factors[1] = std::bitset <4> (j);
 							temp.append (write_factors[0].to_string ());
 							temp.append (write_factors[1].to_string ());
-							std::cout << "byte: " << temp << std::endl;
+							std::cout << "byte = N: " << temp << std::endl;
 							writeout = new std::bitset<8> (temp.c_str ());
 							cronchPUT[0] = (char)writeout->to_ulong ();
 							cronchOUT.write (cronchPUT, 1);
 						}
 					}
 				}
-//append the leftover really big prime number
 				if (difference > 0)
 				{
 					std::cout << "writing difference..." << std::endl;
@@ -221,6 +232,7 @@ int main (int argc, char **argv)
 							for (int i = 24; i < 32; i++)
 							{
 								(*short_out)[i] = (*long_out_32)[i];
+
 							}
 							cronchPUT[0] = (char)short_out->to_ullong ();
 							cronchOUT.write (cronchPUT, 1);
