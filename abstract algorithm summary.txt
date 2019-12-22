@@ -3,29 +3,34 @@ The cronch algorithm works by trying to reduce the physical number of bits used 
 Version 0.1 of cronch uses sets of 4 bytes and 32 bit values.
 
 Cronch starts by taking four bytes from a data stream.
-The bytes are converted to a character string of their equivalent binary value. 
-The four strings are combined to form a single 32 character binary string, preserving the order that the original four bytes were recieved. 
+The bytes are converted to a character string of their equivalent binary value.
+The four strings are combined to form a single 32 character binary string, preserving the order that the original four bytes were recieved.
 This 32 character string is then converted into an equivalent base-10 integer.
 
-The 32 bit integer is factored by a series of 15 prime numbers with each factor being chosen by discovering which number produces the smallest remainder when used as a divisor. 
-If a remainder of zero is not possible, the next smallest remainder is chosen. 
-For Version 0.1 of cronch, the smallest fifteen prime numbers are used, excluding 1. 
-When a prime factor is chosen, it is recorded in a table with a value between 0-14 corresponding to the series of prime numbers used. 
+The 32 bit integer is factored by a series of 15 prime numbers with each factor being chosen by discovering which number produces the smallest remainder when used as a divisor.
+If a remainder of zero is not possible, the next smallest remainder is chosen.
+For Version 0.1 of cronch, the smallest fifteen prime numbers are used, excluding 1.
+When a prime factor is chosen, it is recorded in a table with a value between 0-14 corresponding to the series of prime numbers used.
 The integer is then divided by the chosen prime number and the quotient is used when deciding the next factor.
-The factorization process is complete when the dividend is equal to one of the prime numbers or 1. 
-The resulting table of factors is multiplied, and the difference between the original integer and the product is recorded. 
+The factorization process is complete when the dividend is equal to one of the prime numbers or 1.
+The resulting table of factors is multiplied, and the difference between the original integer and the product is recorded.
 
 Using the factors found above, the four bytes are compressed in the following way.
-For each factor, a four bit value is generated representing the number of times the first value in the table of factors is multiplied. 
+For each factor, a four bit value is generated representing the number of times the first value in the table of factors is multiplied.
 A second four bit value is generated representing the factor's position in the list of prime numbers.
 These four bit values are added together to form a byte with the number of occurences taking the most significant bits and the position taking the least significant.
 This process is repeated for every factor that is chosen at least once during factorization.
 
-After the factors are written, the difference is then written to the file. 
+After the factors are written, the difference is then written to the file.
 The difference will be a number between one and four bytes or there might not be a difference.
 Another one byte value is generated with the four most significant bits being zero and the four least significant being a number between zero and four representing the four possible byte sizes of the difference.
 After this byte is written to the file, the difference is written out using none to four bytes.
 
-This entire process is repeated for every 4 byte block that can be extracted from the stream. 
-The best case scenarionis that every 4 bytes can be represented without a difference which would result in a theoretical compression rate of 50%. 
+This entire process is repeated for every 4 byte block that can be extracted from the stream.
+The best case scenarionis that every 4 bytes can be represented without a difference which would result in a theoretical compression rate of 50%.
 The worst case scenario would be a theoretical expansion of over 50%.
+
+After the compression process is done, the length of the output stream is compared to the length of the input stream.
+If the output stream isn't below a certain percentage smaller than the input stream, the entire process is repeated using the current output stream as the new input stream.
+For each time the output stream is larger than the desired size, the compression process is repeated.
+The number of passes is recorded as an eight bit value at the beginning of the file.
