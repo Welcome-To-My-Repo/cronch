@@ -74,9 +74,11 @@ int main (int argc, char **argv)
 //read entire file into a string
 		while (cronchIN.read (cronchPUT, 1));
 		{
+			std::cout << "reading: " << cronchPUT << std::endl;
 			start_string.push_back (cronchPUT[0]);
 		}
 //get length of initial input string
+		std::cout << "size of file: " << start_string.size () << "bytes" << std::endl;
 		start_input_size = start_string.size ();
 		filesize = start_input_size;
 //put string into string stream
