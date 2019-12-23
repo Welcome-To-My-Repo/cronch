@@ -84,12 +84,12 @@ int main (int argc, char **argv)
 		while (not_small)
 		{
 //check if size of input is a multiple of 4
-			if (input_size < 4)
+			if (filesize < 4)
 			{
 				std::cout << "filesize is too small" << std::endl;
 				return 7;
 			}
-			else if (input_size%4 == 0)
+			else if (filesize%4 == 0)
 			{
 				filesize = filesize/4;
 				is_leftovers = false;
@@ -122,7 +122,7 @@ int main (int argc, char **argv)
 					working_input.read (readin, 4);
 				}
 				for (int i = 0; i < 4; i++)
-					charset[i] = std:;bitset <8> (readin[i]);
+					charset[i] = std::bitset <8> (readin[i]);
 				for (int i = 0; i < 4; i ++)
 					all32bits.append (charset[i].to_string ());
 				all8char = new std::bitset <32> (all32bits.c_str ());
@@ -172,48 +172,106 @@ int main (int argc, char **argv)
 							working_output.write (cronchPUT, 1);
 							long_out_32 = new std::bitset <32> (difference);
 							short_out = new std::bitset <8> ();
-							for (int i = 0; i < 4; i++)
+							for (int i = 4; i > -1; i--)
 							{
-								
+								for (int j = 8 * (i - 1); j < 8 * i; j++)
+								{
+									(*short_out)[j] = (*long_out_32)[j];
+									std::cout << (*short_out) << std::endl;
+								}
+								cronchPUT[0] = (char)short_out->to_ullong ();
+								working_output.write (cronchPUT, 1);
+							}
+						}
+						else
+						{
+							cronchPUT[0] = 2;
+							working_output.write (cronchPUT, 1);
+							long_out_16 = new std::bitset <16> (difference);
+							short_out = new std::bitset <8> ();
+							for (int i = 2; i > -1; i--)
+							{
+								for (int j = 8 * (i - 1); j < 8*i; j++)
+								{
+									(*short_out)[j] = (*long_out_16)[j];
+									std::cout << (*short_out) << std::endl;
+								}
+								cronchPUT[0] = (char)short_out->to_ullong ();
+								working_output.write (cronchPUT, 1);
 							}
 						}
 					}
+					else
+					{
+						cronchPUT[0] = 1;
+						working_output.write (cronchPUT, 1);
+						cronchPUT[0] = (char)difference;
+						working_output.write (cronchPUT, 1);
+					}
+				}
+				else
+				{
+					cronchPUT[0] = 0;
+					working_output.write (cronchPUT, 1);
+				}
+				for (int j = 0; j < 15; j ++)
+				{
+					if (run_comp_factors.at (j) != 0)
+					{
+						for (int a = 0; a < run_comp_factors.at (j)/15; a ++)
+						{
+							temp.clear ();
+							write_factors[0] = std::bitset<4> (15);
+							write_factors[1] = std::bitset<4> (j);
+							temp.append (write_factors[0].to_string ());
+							temp.append (write_factors[1].to_string ());
+							writeout = new std::bitset<8> (temp.c_str ());
+							cronchPUT[0] = (char)writeout->to_ullong ();
+							working_output.write (cronchPUT, 1);
+						}
+						if (run_comp_factors.at (j)%15 > 0)
+						{
+							temp.clear ();
+							write_factors[0] = std::bitset<4> (run_comp_factors.at (j) - (15 * run_comp_factors.at (j)/15));
+							write_factors[1] = std::bitset<4> (j);
+							temp.append (write_factors[0].to_string ());
+							temp.append (write_factors[1].to_string ());
+							writeout = new std::bitset<8> (temp.c_str ());
+							cronchPUT[0] = (char)writeout->to_ullong ();
+							working_output.write (cronchPUT, 1);
+						}
+					}
+					else
+					{
+						temp.clear ();
+						write_factors[0] = std::bitset<4> (run_comp_factors.at (j));
+						write_factors[1] = std::bitset<4> (j);
+						temp.append (write_factors[0].to_string ());
+						temp.append (write_factors[1].to_string ());
+						writeout = new std::bitset<8> (temp.c_str ());
+						cronchPUT[0] = (char)writeout->to_ullong ();
+						working_output.write (cronchPUT, 1);
+					}
 				}
 			}
-//turn each of the bytes into an 8 bit bitset
-//append each bitset in order to a binary string
-//turn the binary string into a 32 bit bitset
-//turn the 32 bit bitset into a 32 bit integer
-
-//start factoring the integer
-//if the integer equals one of the prime numbers...
-//add the dividend to the factors list
-//exit the while loop
-//divide the dividend by the prime number with the smallest modulu result
-//add the prime with the smallest modulo to the factors list
-//multiply the factor product by the new prime
-
-//loop through the factors list to count the similar factors
-//incrememt the number of occurrances of a factor
-
-//get the difference between the original dividend and the factor product
-//make a 4 bit zero value
-//make a 4 bit value corresponding to 0, 8, 16, or 32 bits with 0, 1, 2, 3
-//create a byte with the first 4 being the zero and the second 4 bits being the number
-//write the byte out
-//write out the difference that was recorded earlier
-
-//loop through the list of factor occurances
-//if the occurances is more than zero
-//check if the occurances is greater than 15
-//write out a byte with the value 15 and then the list position
-//check if the number of occurances is not a multiple of 15
-//write out a byte with the remainder of the occurances / 15 and then the list position
-//write out a byte with the number of occurances and then the list position
-
-//move the output stream into a string
-//if the size of the output string isn't small enough repeat the entire process
-//write out the entire string to a file
+//check if output size is less than filesize
+			working = working_output.str ();
+			if (working.size () < start_input_size)
+			{
+				std::cout << "output file is smaller" << std::endl;
+				not_small = false;
+			}
+			else
+			{
+				std::cout << "output file is not smaller" << std::endl;
+				not_small = false;
+			}
+		}
+		for (int i = 0; i < working.size (); i ++)
+		{
+			cronchPUT[0] = working[i];
+			cronchOUT.write (cronchPUT, 1);
+		}
 	}
 	else
 	{
