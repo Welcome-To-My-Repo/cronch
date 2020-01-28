@@ -3,34 +3,14 @@
 int main (int argc, char **argv)
 {
 //initialize variables
+		std::ifstream cronchIN;
+		std::ofstream cronchOUT;
 		std::string start_string, working, all32bits, leftovers, temp;
 		std::istringstream working_input;
 		std::ostringstream working_output;
-		std::bitset <32>* all8char;
-		std::bitset <8> charset[4];
+		
+		long long int filesize;
 		char readin [4], get[1];
-		bool is_leftovers;
-		uint32_t	original,
-				dividend,
-				remainder,
-				prime,
-				difference,
-				factorProduct = 1,
-				totalremainder = 0,
-				start_input_size;
-		bool factoring = true;
-		std::vector <int> factors;
-		std::vector <int> run_comp_factors (15, 0);
-		std::bitset <4> write_factors [2];
-		std::bitset <8> *writeout;
-		uint64_t to_char_convert;
-		char cronchPUT[1];
-		std::bitset <8> *short_out;
-		std::bitset <16> *long_out_16;
-		std::bitset <32> *long_out_32;
-		int counter, filesize;
-		long int passes = 0;
-		bool is_factoring, not_small = true;
 //check arguments
 	if (argc < 2)
 	{
@@ -52,9 +32,6 @@ int main (int argc, char **argv)
 		std::cout << "Incorrect mode!" << std::endl;
 		return 4;
 	}
-//create file input and output streams
-	std::ifstream cronchIN;
-	std::ofstream cronchOUT;
 
 	cronchIN.open (argv[2], std::ios_base::in | std::ios_base::binary);
 	cronchOUT.open (argv[3], std::ios_base::out | std::ios_base::binary);

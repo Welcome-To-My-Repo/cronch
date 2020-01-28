@@ -11,4 +11,4 @@
 
 std::fstream cronchFile;
 
-std::vector <long long int> input_contents;
+std::vector <long long int> input_contents (256);
