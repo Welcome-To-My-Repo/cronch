@@ -11,4 +11,4 @@
 
 std::fstream cronchFile;
 
-const long long int primes [15] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47};
+std::vector <long long int> input_contents;
