@@ -1,3 +1,60 @@
-COMPRESSION
+ABSTRACT SUMMARY
+cronch generates a neural network that contains a stream of data encoded within it.
+cronch can then losslessly generate a the compressed file by cycling through the neural network.
 
-	
+DECOMPRESSION
+Decompression with cronch is a simpler process so this algorithm is documented first.
+cronch is passed a file containing information about a neural network.
+cronch assembles the NN in memory.
+cronch then creates a table of the number of each individual value in the current output stream.
+The table starts with zero for every value because the stream hasn't been generated yet.
+cronch then feeds the numbers in the table to the corresponding inputs of the NN and generates the first output term.
+This output is added to the end of the stream and cronch re-generates the table of values.
+cronch repeats generating values and updating the inputs for as many terms as there were in the original compressed input stream.
+cronch then takes the complete output stream and writes it to a file.
+
+COMPRESSION
+Since the actual cronch algorithm will deal with 8 bit values as files are stored in a filesystem, an accurate example would be too complex.
+An abstract example of the cronch compression algorithm is given below.
+
+Given the four values, "a", "b", "c", "d"
+create an arbitrary input stream: "aadcdccacbdac"
+
+Create a state table for the series:
+a - b - c - d
+__|___|___|__
+4 | 1 | 5 | 3
+
+the input layer takes the number of each value in the table.
+
+nA 
+nB 
+nC
+nD
+
+the output layer produces the next value in the stream:
+
+A
+B
+C
+D
+
+The entire neural network, with hidden layers "H", will look something like this.
+
+nA      A
+nB  H1  B
+nC  H2  C
+nD      D
+
+The number of nodes in the hidden layer correspond to the root of the number of nodes in the output layer.
+sqrt (4) = 2
+If H1=0 and H2=0, the output will be "A".
+If H1=1 and H2=0, the output will be "B".
+If H1=0 and H2=1, the output will be "C".
+If H1=1 and H2=1, the output will be "D".
+
+The activation functions for the hidden layer are then generated from the order of the values in the input stream.
+When the NN is fully generated, it will have the following behavior.
+0: sum=0, H1=0, H2=0
+1: sum=1, H1=0, H2=0
+2: sum=
