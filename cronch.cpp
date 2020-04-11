@@ -1,4 +1,15 @@
-#include "cronch.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
+#include <string>
+#include <cstring>
+#include <cstdint>
+#include <vector>
+
+std::ifstream cronchFile;
+
+std::vector <long long int> input_contents (256);
 
 int main (int argc, char **argv)
 {
@@ -54,17 +65,23 @@ int main (int argc, char **argv)
 //read entire file into a string
 		for (int i = 0; i < filesize; i ++)
 		{
-			cronchIN.read (cronchPUT, 1);
-			start_string.push_back (cronchPUT[0]);
+			cronchIN.read (get, 1);
+			start_string.push_back (get[0]);
 		}
 //get length of initial input string
 		std::cout << "size of file: " << start_string.size () << " bytes" << std::endl;
-		start_input_size = start_string.size ();
-		filesize = start_input_size;
+		filesize = start_string.size ();
 //put string into string stream
 		working_input.str (start_string);
-
-//start generating a neural network
+//start the cronch algorithm
+		for (int i = 0; i < start_string.size (); i ++)
+		{
+			input_contents.at((int)start_string.at(i)) ++;
+		}
+		for (int i = 0; i < input_contents.size (); i ++)
+			std::cout << input_contents.at(i) << " ";
+		std::cout << std::endl;
+	}
 
 	return 0;
 }
